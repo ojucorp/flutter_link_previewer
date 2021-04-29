@@ -45,30 +45,12 @@ class MyHomePage extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: const BorderRadius.all(
-                  Radius.circular(20),
+                  Radius.circular(10),
                 ),
                 child: LinkPreview(
-                  text: 'https://github.com/flyerhq',
+                  text: 'https://www.youtube.com/watch?v=kkzeZew3RTk',
                   width: MediaQuery.of(context).size.width,
-                ),
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.all(16),
-              decoration: const BoxDecoration(
-                color: Color(0xfff7f7f8),
-                borderRadius: BorderRadius.all(
-                  Radius.circular(20),
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(20),
-                ),
-                child: LinkPreview(
-                  text:
-                      'https://dev.to/demchenkoalex/making-a-right-keyboard-accessory-view-in-react-native-4n3p',
-                  width: MediaQuery.of(context).size.width,
+                  maxImageHeight: 200,
                 ),
               ),
             ),

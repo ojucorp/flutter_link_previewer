@@ -22,6 +22,7 @@ class LinkPreview extends StatelessWidget {
     required this.text,
     this.textStyle,
     required this.width,
+    required this.maxImageHeight,
   }) : super(key: key);
 
   /// Style of highlighted links in the text
@@ -55,6 +56,9 @@ class LinkPreview extends StatelessWidget {
   /// Width of the [LinkPreview] widget
   final double width;
 
+  /// Max hidth of the image widget
+  final double maxImageHeight;
+
   Future<PreviewData> _fetchData(String text) async {
     return await getPreviewData(text);
   }
@@ -72,26 +76,11 @@ class LinkPreview extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Linkify(
-                linkifiers: [UrlLinkifier()],
-                linkStyle: linkStyle,
-                maxLines: 100,
-                onOpen: _onOpen,
-                options: const LinkifyOptions(
-                  defaultToHttps: true,
-                  humanize: false,
-                  looseUrl: true,
-                ),
-                text: text,
-                style: textStyle,
-              ),
-              if (data.title != null) _titleWidget(data.title!),
-              if (data.description != null)
-                _descriptionWidget(data.description!),
+              _titleWidget(data.title ?? '제목없음'),
             ],
           ),
         ),
@@ -133,13 +122,14 @@ class LinkPreview extends StatelessWidget {
   Widget _imageWidget(String url, double width) {
     return Container(
       constraints: BoxConstraints(
-        maxHeight: width,
+        maxHeight: maxImageHeight,
       ),
       width: width,
       margin: const EdgeInsets.only(top: 8),
       child: Image.network(
         url,
         fit: BoxFit.fitWidth,
+        alignment: Alignment.topCenter,
       ),
     );
   }

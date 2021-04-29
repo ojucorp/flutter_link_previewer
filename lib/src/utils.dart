@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_chat_types/flutter_chat_types.dart'
     show PreviewData, PreviewDataImage;
+import 'package:flutter_link_previewer/src/cp949.dart';
 import 'package:html/dom.dart' show Document, Element;
 import 'package:html/parser.dart' as parser show parse;
 import 'package:http/http.dart' as http show get;
@@ -27,15 +28,15 @@ String? _getMetaContent(Document document, String propertyValue) {
   return element.attributes['content']?.trim();
 }
 
-bool _hasUTF8Charset(Document document) {
+String _getCharset(Document document) {
   final emptyElement = Element.tag(null);
   final meta = document.getElementsByTagName('meta');
   final element = meta.firstWhere(
     (e) => e.attributes.containsKey('charset'),
     orElse: () => emptyElement,
   );
-  if (element == emptyElement) return true;
-  return element.attributes['charset']!.toLowerCase() == 'utf-8';
+  if (element == emptyElement) return 'utf-8';
+  return element.attributes['charset']!.toLowerCase();
 }
 
 String? _getTitle(Document document) {
@@ -144,21 +145,21 @@ Future<PreviewData> getPreviewData(String text) async {
   String? previewDataUrl;
 
   try {
-    final urlRegexp = RegExp(REGEX_LINK);
-    final matches = urlRegexp.allMatches(text.toLowerCase());
-    if (matches.isEmpty) return previewData;
-
-    var url = text.substring(matches.first.start, matches.first.end);
+    var url = text;
     if (!url.startsWith('http')) {
       url = 'https://' + url;
     }
     previewDataUrl = url;
     final uri = Uri.parse(url);
     final response = await http.get(uri);
-    final document = parser.parse(response.body);
+    var document = parser.parse(response.body);
 
-    if (!_hasUTF8Charset(document)) {
+    final charset = _getCharset(document);
+    if (charset != 'utf-8' && charset != 'euc-kr') {
       return previewData;
+    }
+    if (charset == 'euc-kr') {
+      document = parser.parse(CP949.decode(response.bodyBytes));
     }
 
     final title = _getTitle(document);
