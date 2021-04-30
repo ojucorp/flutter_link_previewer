@@ -114,22 +114,32 @@ Future<Size> _getImageSize(String url) {
         width: info.image.width.toDouble(),
       ),
     ),
+    onError: (Object exception, StackTrace? stackTrace) {
+      completer.complete(const Size(height: 0, width: 0));
+    }
   );
+
   image.image.resolve(ImageConfiguration.empty).addListener(listener);
   return completer.future;
 }
 
 Future<String> _getBiggestImageUrl(List<String> imageUrls) async {
+  if (imageUrls.length > 3) {
+    imageUrls.removeRange(3, imageUrls.length);
+  }
   var currentUrl = imageUrls[0];
   var currentArea = 0.0;
 
   await Future.forEach(imageUrls, (String url) async {
-    final size = await _getImageSize(url);
-    final area = size.width * size.height;
-    if (area > currentArea) {
-      currentArea = area;
-      currentUrl = url;
-    }
+    await _getImageSize(url).then((size) {
+      final area = size.width * size.height;
+      if (area > currentArea) {
+        currentArea = area;
+        currentUrl = url;
+      }
+    }).catchError((e) {
+      print('failed to get image ${e.toString()}');
+    });
   });
 
   return currentUrl;

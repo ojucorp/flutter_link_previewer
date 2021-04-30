@@ -48,7 +48,7 @@ class MyHomePage extends StatelessWidget {
                   Radius.circular(10),
                 ),
                 child: LinkPreview(
-                  text: 'https://www.youtube.com/watch?v=kkzeZew3RTk',
+                  text: 'https://post.naver.com/viewer/postView.nhn?volumeNo=31307221&memberNo=2950908',
                   width: MediaQuery.of(context).size.width,
                   maxImageHeight: 200,
                 ),
