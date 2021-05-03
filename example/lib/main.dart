@@ -49,7 +49,6 @@ class MyHomePage extends StatelessWidget {
                 ),
                 child: LinkPreview(
                   text: 'https://post.naver.com/viewer/postView.nhn?volumeNo=31307221&memberNo=2950908',
-                  width: MediaQuery.of(context).size.width,
                   maxImageHeight: 200,
                 ),
               ),

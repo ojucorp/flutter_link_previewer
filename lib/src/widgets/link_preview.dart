@@ -10,20 +10,16 @@ import '../utils.dart' show getPreviewData;
 /// if the parsing was successful.
 class LinkPreview extends StatefulWidget {
   // ignore: use_key_in_widget_constructors
-  const LinkPreview({
+  LinkPreview({
     required this.text,
-    required this.width,
     required this.maxImageHeight,
     this.textStyle,
     this.metadataTextStyle,
     this.metadataTitleStyle,
-  });
+  }) : fetchData = getPreviewData(text);
 
   /// Text used for parsing
   final String text;
-
-  /// Width of the [LinkPreview] widget
-  final double width;
 
   /// Max hidth of the image widget
   final double maxImageHeight;
@@ -36,20 +32,14 @@ class LinkPreview extends StatefulWidget {
 
   /// Style of preview's title
   final TextStyle? metadataTitleStyle;
-  
+
+  Future<PreviewData> fetchData;
+
   @override
   _LinkPreviewState createState() => _LinkPreviewState();
 }
 
 class _LinkPreviewState extends State<LinkPreview> {
-  Future<PreviewData>? _fetchData;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchData = getPreviewData(widget.text);
-  }
-
   Future<void> _onOpen(LinkableElement link) async {
     if (await canLaunch(link.url)) {
       await launch(link.url);
@@ -58,7 +48,7 @@ class _LinkPreviewState extends State<LinkPreview> {
     }
   }
 
-  Widget _bodyWidget(PreviewData data, String text, double width) {
+  Widget _bodyWidget(PreviewData data, String text) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -71,18 +61,16 @@ class _LinkPreviewState extends State<LinkPreview> {
             ],
           ),
         ),
-        if (data.image?.url != null) _imageWidget(data.image!.url, width),
+        if (data.image?.url != null) _imageWidget(data.image!.url),
       ],
     );
   }
 
   Widget _containerWidget({
-    required double width,
     bool withPadding = false,
     required Widget child,
   }) {
     return Container(
-      constraints: BoxConstraints(maxWidth: width),
       child: child,
     );
   }
@@ -99,12 +87,12 @@ class _LinkPreviewState extends State<LinkPreview> {
     );
   }
 
-  Widget _imageWidget(String url, double width) {
+  Widget _imageWidget(String url) {
     return Container(
       constraints: BoxConstraints(
         maxHeight: widget.maxImageHeight,
       ),
-      width: width,
+      width: MediaQuery.of(context).size.width,
       margin: const EdgeInsets.only(top: 8),
       child: Image.network(
         url,
@@ -169,7 +157,6 @@ class _LinkPreviewState extends State<LinkPreview> {
 
   Widget _plainTextWidget() {
     return _containerWidget(
-      width: widget.width,
       withPadding: true,
       child: Linkify(
         linkifiers: [UrlLinkifier()],
@@ -207,7 +194,7 @@ class _LinkPreviewState extends State<LinkPreview> {
   Widget build(BuildContext context) {
     return FutureBuilder<PreviewData>(
       initialData: null,
-      future: _fetchData,
+      future: widget.fetchData,
       builder: (BuildContext context, AsyncSnapshot<PreviewData> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting ||
             snapshot.hasError ||
@@ -217,14 +204,11 @@ class _LinkPreviewState extends State<LinkPreview> {
             ? null
             : snapshot.data!.image!.width / snapshot.data!.image!.height;
 
-        final _width = aspectRatio == 1 ? widget.width : widget.width - 32;
-
         return _containerWidget(
-          width: widget.width,
           withPadding: aspectRatio == 1,
           child: aspectRatio == 1
               ? _minimizedBodyWidget(snapshot.data!, widget.text)
-              : _bodyWidget(snapshot.data!, widget.text, _width),
+              : _bodyWidget(snapshot.data!, widget.text),
         );
       },
     );
