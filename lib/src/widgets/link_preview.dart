@@ -35,6 +35,8 @@ class LinkPreview extends StatefulWidget {
 
   Future<PreviewData> fetchData;
 
+  PreviewData? previewData;
+
   @override
   _LinkPreviewState createState() => _LinkPreviewState();
 }
@@ -190,8 +192,25 @@ class _LinkPreviewState extends State<LinkPreview> {
     );
   }
 
+  Widget _buildPreviewWidget() {
+    final aspectRatio = widget.previewData!.image == null
+        ? null
+        : widget.previewData!.image!.width / widget.previewData!.image!.height;
+
+    return _containerWidget(
+      withPadding: aspectRatio == 1,
+      child: aspectRatio == 1
+          ? _minimizedBodyWidget(widget.previewData!, widget.text)
+          : _bodyWidget(widget.previewData!, widget.text),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (widget.previewData != null) {
+      return _buildPreviewWidget();
+    }
+
     return FutureBuilder<PreviewData>(
       initialData: null,
       future: widget.fetchData,
@@ -200,17 +219,10 @@ class _LinkPreviewState extends State<LinkPreview> {
             snapshot.hasError ||
             snapshot.data == null) return _plainTextWidget();
 
-        final aspectRatio = snapshot.data!.image == null
-            ? null
-            : snapshot.data!.image!.width / snapshot.data!.image!.height;
-
-        return _containerWidget(
-          withPadding: aspectRatio == 1,
-          child: aspectRatio == 1
-              ? _minimizedBodyWidget(snapshot.data!, widget.text)
-              : _bodyWidget(snapshot.data!, widget.text),
-        );
+        widget.previewData = snapshot.data;
+        return _buildPreviewWidget();
       },
     );
   }
 }
+
