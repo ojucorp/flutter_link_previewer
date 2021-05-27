@@ -21,7 +21,7 @@ class LinkPreview extends StatefulWidget {
   /// Text used for parsing
   final String text;
 
-  /// Max hidth of the image widget
+  /// Max height of the image widget
   final double maxImageHeight;
 
   /// Style of the provided text
@@ -193,15 +193,9 @@ class _LinkPreviewState extends State<LinkPreview> {
   }
 
   Widget _buildPreviewWidget() {
-    final aspectRatio = widget.previewData!.image == null
-        ? null
-        : widget.previewData!.image!.width / widget.previewData!.image!.height;
-
     return _containerWidget(
-      withPadding: aspectRatio == 1,
-      child: aspectRatio == 1
-          ? _minimizedBodyWidget(widget.previewData!, widget.text)
-          : _bodyWidget(widget.previewData!, widget.text),
+      withPadding: false,
+      child: _bodyWidget(widget.previewData!, widget.text),
     );
   }
 

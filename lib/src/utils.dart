@@ -168,6 +168,8 @@ Future<PreviewData> getYoutubePreviewData(final String docId, final String previ
   final embedUrl =
       'https://www.youtube.com/oembed?url=http://www.youtube.com/watch?v=$docId&format=json';
 
+  final imgUrl = 'https://img.youtube.com/vi/$docId/mqdefault.jpg';
+
   final uri = Uri.parse(embedUrl);
   final response = await http.get(uri);
   final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -179,7 +181,7 @@ Future<PreviewData> getYoutubePreviewData(final String docId, final String previ
     height: jsonData.containsKey('thumbnail_height')
         ? double.parse(jsonData['thumbnail_height'].toString())
         : 360,
-    url: jsonData.containsKey('thumbnail_url') ? jsonData['thumbnail_url'].toString() : '',
+    url: imgUrl,
   );
 
   return PreviewData(

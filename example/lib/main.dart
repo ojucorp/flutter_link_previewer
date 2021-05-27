@@ -39,7 +39,7 @@ class MyHomePage extends StatelessWidget {
               margin: const EdgeInsets.all(16),
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.all(
-                  Radius.circular(20),
+                  Radius.circular(10),
                 ),
                 color: Color(0xfff7f7f8),
               ),
