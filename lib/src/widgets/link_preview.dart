@@ -99,7 +99,7 @@ class _LinkPreviewState extends State<LinkPreview> {
       child: Image.network(
         url,
         fit: BoxFit.fitWidth,
-        alignment: Alignment.topCenter,
+        alignment: Alignment.center,
       ),
     );
   }
