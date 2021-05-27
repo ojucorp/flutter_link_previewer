@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter_chat_types/flutter_chat_types.dart'
     show PreviewData, PreviewDataImage;
@@ -145,6 +146,50 @@ Future<String> _getBiggestImageUrl(List<String> imageUrls) async {
   return currentUrl;
 }
 
+bool isYoutubeLink(final String host) {
+  if (host.startsWith("youtu.be") ||
+      host.startsWith("youtube.com") ||
+      host.startsWith("www.youtube.com")) {
+    return true;
+  }
+  return false;
+}
+
+String getYoutubeDocId(final Uri uri) {
+  if (uri.queryParameters.containsKey('v')) {
+    return uri.queryParameters['v'].toString();
+  } else if (uri.pathSegments.isNotEmpty) {
+    return uri.pathSegments.first;
+  }
+  return '';
+}
+
+Future<PreviewData> getYoutubePreviewData(final String docId, final String previewDataUrl) async {
+  final embedUrl =
+      'https://www.youtube.com/oembed?url=http://www.youtube.com/watch?v=$docId&format=json';
+
+  final uri = Uri.parse(embedUrl);
+  final response = await http.get(uri);
+  final jsonData = jsonDecode(response.body) as Map<String, dynamic>;
+
+  final previewDataImage = PreviewDataImage(
+    width: jsonData.containsKey('thumbnail_width')
+        ? double.parse(jsonData['thumbnail_width'].toString())
+        : 480,
+    height: jsonData.containsKey('thumbnail_height')
+        ? double.parse(jsonData['thumbnail_height'].toString())
+        : 360,
+    url: jsonData.containsKey('thumbnail_url') ? jsonData['thumbnail_url'].toString() : '',
+  );
+
+  return PreviewData(
+    description: '',
+    image: previewDataImage,
+    link: previewDataUrl,
+    title: jsonData['title'].toString() + ' - Youtube',
+  );
+}
+
 /// Parses provided text and returns [PreviewData] for the first found link
 Future<PreviewData> getPreviewData(String text) async {
   const previewData = PreviewData();
@@ -161,6 +206,13 @@ Future<PreviewData> getPreviewData(String text) async {
     }
     previewDataUrl = url;
     final uri = Uri.parse(url);
+    if (isYoutubeLink(uri.host)) {
+      final docId = getYoutubeDocId(uri);
+      if (docId.isNotEmpty) {
+        return getYoutubePreviewData(docId, previewDataUrl);
+      }
+    }
+
     final response = await http.get(uri);
     var document = parser.parse(response.body);
 
