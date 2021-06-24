@@ -41,7 +41,11 @@ class LinkPreview extends StatefulWidget {
   _LinkPreviewState createState() => _LinkPreviewState();
 }
 
-class _LinkPreviewState extends State<LinkPreview> {
+class _LinkPreviewState extends State<LinkPreview> with AutomaticKeepAliveClientMixin {
+
+  @override
+  bool get wantKeepAlive => true;
+
   Future<void> _onOpen(LinkableElement link) async {
     if (await canLaunch(link.url)) {
       await launch(link.url);
@@ -201,6 +205,8 @@ class _LinkPreviewState extends State<LinkPreview> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     if (widget.previewData != null) {
       return _buildPreviewWidget();
     }
